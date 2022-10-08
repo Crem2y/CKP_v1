@@ -36,7 +36,7 @@ byte keySets[KEYSET_MAX][KEYS_V][KEYS_H+1] = { // V, H + 1byte(mode-code)
    {0xE1,0xE2,0xE3,0xE0,0x00},
    {0xEA,F_S1,0xEB,0xB2,0x00}},// 0
 
-  {{0x00,M_LB,M_MB,M_RB,0x00},
+  {{L_CN,M_LB,M_MB,M_RB,0x00},
    {M_UL,M_U ,M_UR,MH_U,0x54},
    {M_L ,M_LB,M_R ,MH_D,0x54},
    {M_DL,M_D ,M_DR,R_F ,0x55},

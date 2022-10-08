@@ -228,7 +228,7 @@ void loop(void) {
     counter += 4;
   } // rotery checking end
 
-  Neo_keyLight_KB(); // neopixel display
+  Neo_loop(); // neopixel display
   // neopixel display end
 }
 //////////////////////////////// main loop end ////////////////////////////////
@@ -472,7 +472,7 @@ void keyHandle(unsigned char keycode, bool pressed) {
 }
 
 /**
- * @brief special keycode by mouse, repeat speed, and user function
+ * @brief special keycode for mouse, repeat speed, and user function
  * 
  * @param keycode unsigned char, 0x01 ~ 0x1F (31)
  * @param pressed bool, if true, key is pressed
@@ -596,7 +596,7 @@ void sp_Normal(byte keycode, bool pressed) {
 }
 
 /**
- * @brief special keycode by consumer key
+ * @brief special keycode for consumer key
  * 
  * @param keycode unsigned char, 0xB4 ~ 0xC0 (13)
  * @param pressed bool, if true, key is pressed
@@ -670,7 +670,7 @@ void sp_Consumer(byte keycode, bool pressed) {
 }
 
 /**
- * @brief special keycode by surface dial
+ * @brief special keycode for surface dial
  * 
  * @param keycode unsigned char, 0xEC ~ 0xEF (4)
  * @param pressed bool, if true, key is pressed
@@ -687,6 +687,9 @@ void sp_Surface(byte keycode, bool pressed) {
       case S_CC: // surface_counter_clockwise
         SurfaceDial.rotate(-10);
       break;
+      case L_CN: // LED_change
+        Neo_modeChange();
+      break;
     }
   } else {
     if(keycode == S_B) {
@@ -696,7 +699,7 @@ void sp_Surface(byte keycode, bool pressed) {
 }
 
 /**
- * @brief special keycode by special function
+ * @brief special keycode for special function
  * 
  * @param keycode unsigned char, 0xFC ~ 0xFF (4)
  * @param pressed bool, if true, key is pressed
@@ -762,6 +765,47 @@ byte Neo_bright[20] = {0,};
 byte Neo_count = 0;
 byte Neo_count2 = 0;
 byte Neo_ranset[20] = {1, 8, 12, 15, 14, 10, 9, 17, 0, 7, 13, 5, 2, 19, 11, 4, 6, 18, 3, 16};
+byte Neo_mode = 4;
+
+/**
+ * @brief run every loop
+ */
+void Neo_loop(void) { 
+  switch (Neo_mode) {
+    case 0:
+      Neo_keyLight_OFF();
+    break;
+    case 1:
+      Neo_keyLight_Fixed();
+    break;
+    case 2:
+      Neo_keyLight_Rainbow();
+    break;
+    case 3:
+      Neo_keyLight_Random();
+    break;
+    case 4:
+      Neo_keyLight_Pressed();
+    break;
+    case 5:
+      Neo_keyLight_PressedAll();
+    break;
+  
+    default:
+    break;
+  }
+  pixels.show();
+}
+
+/**
+ * @brief change mode
+ */
+void Neo_modeChange(void) { 
+  Neo_mode++;
+  if (Neo_mode == 6) {
+    Neo_mode = 0;
+  }
+}
 
 /**
  * @brief turn off leds all
@@ -770,23 +814,21 @@ void Neo_keyLight_OFF(void) {
   for(byte i=0; i<20; i++) {
     pixels.setPixelColor(i, pixels.Color(0,0,0));
   }
-  pixels.show();
 }
 
 /**
  * @brief turn on leds by fixed color
  */
-void Neo_keyLight_NN(void) { 
+void Neo_keyLight_Fixed(void) { 
   for(byte i=0; i<20; i++) {
     pixels.setPixelColor(i, pixels.Color(P_BMAX,P_BMAX,P_BMAX));
   }
-  pixels.show();
 }
 
 /**
  * @brief turn on leds by rainbow
  */
-void Neo_keyLight_NR(void) { 
+void Neo_keyLight_Rainbow(void) { 
   for(byte i=0; i<4; i++) {
     pixels.setPixelColor(i,    pixels.Color(P_BMAX,0,0));
     pixels.setPixelColor(i+4,  pixels.Color(P_BMAX,P_BMAX,0));
@@ -794,13 +836,12 @@ void Neo_keyLight_NR(void) {
     pixels.setPixelColor(i+12, pixels.Color(0,P_BMAX,P_BMAX));
     pixels.setPixelColor(i+16, pixels.Color(0,0,P_BMAX));
   }
-  pixels.show();
 }
 
 /**
  * @brief random light
  */
-void Neo_keyLight_RN(void) { 
+void Neo_keyLight_Random(void) { 
   byte pnum = Neo_ranset[Neo_count2];
   Neo_bright[pnum] = P_BMAX;
 
@@ -821,13 +862,12 @@ void Neo_keyLight_RN(void) {
     Neo_count2++;
   }
   Neo_count++;
-  pixels.show();
 }
 
 /**
  * @brief turn on led pressed key only
  */
-void Neo_keyLight_KB(void) {
+void Neo_keyLight_Pressed(void) {
   byte pnum = 0;
   for(byte i=0; i<5; i++) {
     for(byte j=0; j<4; j++) {
@@ -850,13 +890,12 @@ void Neo_keyLight_KB(void) {
     Neo_count = 0;
   }
   Neo_count++;
-  pixels.show();
 }
 
 /**
  * @brief turn on led if key is pressed
  */
-void Neo_keyLight_KA(void) {
+void Neo_keyLight_PressedAll(void) {
   Neo_bright[0] = 0;
   for(byte i=0; i<5; i++) {
     for(byte j=0; j<4; j++) {
@@ -869,7 +908,6 @@ void Neo_keyLight_KA(void) {
   for(byte i=0; i<20; i++) {
     pixels.setPixelColor(i, pixels.Color(b,b,b));
   }
-  pixels.show();
 }
 
 /////////////// serial function ///////////////
@@ -1297,4 +1335,3 @@ void sp_func_03(void) {
  */
 void sp_func_04(void) {
 }
-//small change
