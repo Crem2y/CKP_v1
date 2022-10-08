@@ -1,7 +1,0 @@
-{
-    "sketch": "main\\main.ino",
-    "board": "arduino:avr:leonardo",
-    "programmer": "arduino:arduinoisp",
-    "port": "COM11",
-    "output": "arduino\\build"
-}
