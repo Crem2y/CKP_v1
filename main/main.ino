@@ -790,7 +790,6 @@ void Neo_loop(void) {
     case 5:
       Neo_keyLight_PressedAll();
     break;
-  
     default:
     break;
   }
