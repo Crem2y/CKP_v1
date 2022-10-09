@@ -6,8 +6,8 @@
 #define M_MB 0x03 // middle_mouse
 #define M_4B 0x04 // mouse_button_4 (prev)
 #define M_5B 0x05 // mouse_button_5 (next)
-#define M_6B 0x06 // mouse_button_6
-#define M_7B 0x07 // mouse_button_7
+#define M_6B 0x06 // mouse_button_6 (not working well)
+#define M_7B 0x07 // mouse_button_7 (not working well)
 #define M_U  0x08 // mouse_up
 #define M_D  0x09 // mouse_down
 #define M_L  0x0A // mouse_left

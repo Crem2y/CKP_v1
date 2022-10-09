@@ -128,7 +128,7 @@ byte keySets[KEYSET_MAX][KEYS_V][KEYS_H+1] = { // V, H + 1byte(mode-code)
 }; // keyset end
 
 char modeString[KEYSET_MAX][17] = { // char*16 + 0x00(null)
-  "  keypad mode   ", "   mouse mode   ", "  Rhythm mode\7  ", "clip studio mode", // 0~3
+  "  keypad mode   ", "   mouse mode   ", "  Rhythm mode!  ", "clip studio mode", // 0~3
   "  youtube mode  ", "  mode num 05   ", "  mode num 06   ", "  mode num 07   ", // 4~7
   "  mode num 08   ", "  mode num 09   ", "  macro mouse!  ", "  mode num 11   ", // 8~11
   "  mode num 12   ", "  mode num 13   ", "  Surface mode  ", " Consumer mode  "  // 12~15

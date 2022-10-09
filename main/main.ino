@@ -96,7 +96,6 @@ void setup(void) {
   lcd.createChar(3, lcd_char_scr_lock);
   lcd.createChar(4, lcd_char_locked);
   lcd.createChar(5, lcd_char_unlocked);
-  lcd.createChar(7, lcd_char_rhythm);
   lcd.begin(16,2);
   lcd.print(" Custom keypad  ");
   lcd.setCursor(0, 1);
