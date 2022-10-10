@@ -790,6 +790,7 @@ void Neo_loop(void) {
       Neo_keyLight_PressedAll();
     break;
     default:
+      Neo_keyLight_OFF();
     break;
   }
   pixels.show();
