@@ -96,17 +96,17 @@ byte keySets[KEYSET_MAX][KEYS_V][KEYS_H+1] = { // V, H + 1byte(mode-code)
    {M_DL,M_D ,M_DR,R_F ,0x55},
    {M_F ,M_S ,0X00,R_S ,0x01}},// 10
 
-  {{0x00, 'b', 'c', 'd',0x00},
-   { 'e', 'f', 'g', 'h',0x00},
-   { 'i', 'j', 'k', 'l',0x00},
-   { 'm', 'n', 'o', 'p',0x00},
-   { 'q', 'r', 's', 't',0x00}},// 11
+  {{0x00,G_DL,G_DU,G_DR,0x00},
+   {G_LU,G_LR,G_RU,G_RR,0x00},
+   {G_LL,G_LD,G_RL,G_RD,0x00},
+   {G_01,G_02,G_03,G_04,0x00},
+   {G_05,G_06,G_07,G_08,0x00}},// 11
 
-  {{0x00, 'b', 'c', 'd',0x00},
-   { 'e', 'f', 'g', 'h',0x00},
-   { 'i', 'j', 'k', 'l',0x00},
-   { 'm', 'n', 'o', 'p',0x00},
-   { 'q', 'r', 's', 't',0x00}},// 12
+  {{0x00,G_21,G_22,G_23,0x00},
+   {G_ZU,G_ZR,G_09,G_10,0x00},
+   {G_ZL,G_ZD,G_11,G_12,0x00},
+   {G_13,G_14,G_15,G_16,0x00},
+   {G_17,G_18,G_19,G_20,0x00}},// 12
 
   {{0x00, 'b', 'c', 'd',0x00},
    { 'e', 'f', 'g', 'h',0x00},
@@ -114,8 +114,8 @@ byte keySets[KEYSET_MAX][KEYS_V][KEYS_H+1] = { // V, H + 1byte(mode-code)
    { 'm', 'n', 'o', 'p',0x00},
    { 'q', 'r', 's', 't',0x00}},// 13
 
-  {{0x00,S_CC,S_B ,S_CW,0x00},
-   { 'e', 'f', 'g', 'h',0x00},
+  {{0x00,S_CC,S_B ,S_CW,0x11},
+   { 'e', 'f',R_F ,R_S ,0x05},
    { 'i', 'j', 'k', 'l',0x00},
    { 'm', 'n', 'o', 'p',0x00},
    { 'q', 'r', 's', 't',0x00}},// 14
@@ -123,15 +123,15 @@ byte keySets[KEYSET_MAX][KEYS_V][KEYS_H+1] = { // V, H + 1byte(mode-code)
   {{0x00,C_VM,C_VU,C_VD,0x00},
    {C_MP,C_MS,C_MN,C_MR,0x00},
    {C_CA,C_EM,C_BH,C_BB,0x00},
-   {C_BF,C_FI,0x00,S_B ,0x00},
+   {C_BF,C_FI,0x00,0x00,0x00},
    {M_4B,M_5B,M_6B,M_7B,0x00}} // 15
 }; // keyset end
 
 char modeString[KEYSET_MAX][17] = { // char*16 + 0x00(null)
-  "  keypad mode   ", "   mouse mode   ", "  Rhythm mode!  ", "clip studio mode", // 0~3
+  "  keypad mode   ", "   mouse mode   ", "  Rhythm mode\7  ", "clip studio mode", // 0~3
   "  youtube mode  ", "  mode num 05   ", "  mode num 06   ", "  mode num 07   ", // 4~7
-  "  mode num 08   ", "  mode num 09   ", "  macro mouse!  ", "  mode num 11   ", // 8~11
-  "  mode num 12   ", "  mode num 13   ", "  Surface mode  ", " Consumer mode  "  // 12~15
+  "  mode num 08   ", "  mode num 09   ", "  macro mouse!  ", "  Gamepad mode  ", // 8~11
+  " Gamepad mode2  ", "  mode num 13   ", "  Surface mode  ", " Consumer mode  "  // 12~15
 }; // end
 
 /* example

@@ -90,6 +90,7 @@ void setup(void) {
   //Consumer.begin();
   Mouse.begin();
   SurfaceDial.begin();
+  Gamepad.begin();
 
   lcd.createChar(1, lcd_char_num_lock);
   lcd.createChar(2, lcd_char_cap_lock);
@@ -359,7 +360,7 @@ void keysetSelect(void) {
  * @param keyset byte, 0 ~ KEYSET_MAX
  */
 void keysetChange(byte keyset) {
-  repeatSpeed = MS_DEF;
+  repeatSpeed = RS_DEF;
   lcd.begin(16,2);
   lcd.print("M:_    \1_ \2_ \3_ ");
   lcd.setCursor(2, 0);
@@ -458,6 +459,8 @@ void toggleRepeat(byte key, byte keyposH, byte keyposV, byte keyset) {
 void keyHandle(unsigned char keycode, bool pressed) {
   if (keycode < 0x20) {
     sp_Normal(keycode, pressed);
+  } else if (keycode > 0x87 && keycode < 0xB0) {
+    sp_Gamepad(keycode, pressed);
   } else if (keycode > 0xB3 && keycode < 0xC1) {
     sp_Consumer(keycode, pressed);
   } else if (keycode > 0xEB && keycode < 0xF0) {
@@ -592,6 +595,263 @@ void sp_Normal(byte keycode, bool pressed) {
       break;
     }
   }
+}
+
+/**
+ * @brief special keycode by gamepad
+ * 
+ * @param keycode unsigned char, 0x88 ~ 0xAF (40)
+ * @param pressed bool, if true, key is pressed
+ */
+void sp_Gamepad(byte keycode, bool pressed) {
+  if (pressed) {
+    switch(keycode) {
+      case G_LU: // game_left_stick_up
+        Gamepad.yAxis(0x8000);
+      break;
+      case G_LD: // game_left_stick_down
+        Gamepad.yAxis(0x7FFF);
+      break;
+      case G_LL: // game_left_stick_left
+        Gamepad.xAxis(0x8000);
+      break;
+      case G_LR: // game_left_stick_right
+        Gamepad.xAxis(0x7FFF);
+      break;
+      case G_RU: // game_right_stick_up
+        Gamepad.rxAxis(0x8000);
+      break;
+      case G_RD: // game_right_stick_down
+        Gamepad.rxAxis(0x7FFF);
+      break;
+      case G_RL: // game_right_stick_left
+        Gamepad.zAxis(0x80);
+      break;
+      case G_RR: // game_right_stick_right
+        Gamepad.zAxis(0x7F);
+      break;
+      case G_DU: // game_dpad_up
+        Gamepad.dPad2(GAMEPAD_DPAD_UP);
+      break;
+      case G_DD: // game_dpad_down
+        Gamepad.dPad2(GAMEPAD_DPAD_DOWN);
+      break;
+      case G_DL: // game_dpad_left
+        Gamepad.dPad2(GAMEPAD_DPAD_LEFT);
+      break;
+      case G_DR: // game_dpad_right
+        Gamepad.dPad2(GAMEPAD_DPAD_RIGHT);
+      break;
+      case G_ZU: // game_left_Zaxis+
+        Gamepad.rzAxis(0x80);
+      break;
+      case G_ZD: // game_left_Zaxis-
+        Gamepad.rzAxis(0x7F);
+      break;
+      case G_ZL: // game_right_Zaxis+
+        Gamepad.ryAxis(0x8000);
+      break;
+      case G_ZR: // game_right_Zaxis-
+        Gamepad.ryAxis(0x7FFF);
+      break;
+      case G_01: // game_button_01
+        Gamepad.press(1);
+      break;
+      case G_02: // game_button_02
+        Gamepad.press(2);
+      break;
+      case G_03: // game_button_03
+        Gamepad.press(3);
+      break;
+      case G_04: // game_button_04
+        Gamepad.press(4);
+      break;
+      case G_05: // game_button_05
+        Gamepad.press(5);
+      break;
+      case G_06: // game_button_06
+        Gamepad.press(6);
+      break;
+      case G_07: // game_button_07
+        Gamepad.press(7);
+      break;
+      case G_08: // game_button_08
+        Gamepad.press(8);
+      break;
+      case G_09: // game_button_09
+        Gamepad.press(9);
+      break;
+      case G_10: // game_button_10
+        Gamepad.press(10);
+      break;
+      case G_11: // game_button_11
+        Gamepad.press(11);
+      break;
+      case G_12: // game_button_12
+        Gamepad.press(12);
+      break;
+      case G_13: // game_button_13
+        Gamepad.press(13);
+      break;
+      case G_14: // game_button_14
+        Gamepad.press(14);
+      break;
+      case G_15: // game_button_15
+        Gamepad.press(15);
+      break;
+      case G_16: // game_button_16
+        Gamepad.press(16);
+      break;
+      case G_17: // game_button_17
+        Gamepad.press(17);
+      break;
+      case G_18: // game_button_18
+        Gamepad.press(18);
+      break;
+      case G_19: // game_button_19
+        Gamepad.press(19);
+      break;
+      case G_20: // game_button_20
+        Gamepad.press(20);
+      break;
+      case G_21: // game_button_21
+        Gamepad.press(21);
+      break;
+      case G_22: // game_button_22
+        Gamepad.press(22);
+      break;
+      case G_23: // game_button_23
+        Gamepad.press(23);
+      break;
+      case G_24: // game_button_24
+        Gamepad.press(24);
+      break;
+    }
+  } else {
+    switch(keycode) {
+      case G_LU: // game_left_stick_up
+        Gamepad.yAxis(0x0000);
+      break;
+      case G_LD: // game_left_stick_down
+        Gamepad.yAxis(0x0000);
+      break;
+      case G_LL: // game_left_stick_left
+        Gamepad.xAxis(0x0000);
+      break;
+      case G_LR: // game_left_stick_right
+        Gamepad.xAxis(0x0000);
+      break;
+      case G_RU: // game_right_stick_up
+        Gamepad.rxAxis(0x0000);
+      break;
+      case G_RD: // game_right_stick_down
+        Gamepad.rxAxis(0x0000);
+      break;
+      case G_RL: // game_right_stick_left
+        Gamepad.zAxis(0x00);
+      break;
+      case G_RR: // game_right_stick_right
+        Gamepad.zAxis(0x00);
+      break;
+      case G_DU: // game_dpad_up
+        Gamepad.dPad2(GAMEPAD_DPAD_CENTERED);
+      break;
+      case G_DD: // game_dpad_down
+        Gamepad.dPad2(GAMEPAD_DPAD_CENTERED);
+      break;
+      case G_DL: // game_dpad_left
+        Gamepad.dPad2(GAMEPAD_DPAD_CENTERED);     
+      break;
+      case G_DR: // game_dpad_right
+        Gamepad.dPad2(GAMEPAD_DPAD_CENTERED);
+      break;
+      case G_ZU: // game_left_Zaxis+
+        Gamepad.rzAxis(0x00);
+      break;
+      case G_ZD: // game_left_Zaxis-
+        Gamepad.rzAxis(0x00);
+      break;
+      case G_ZL: // game_right_Zaxis+
+        Gamepad.ryAxis(0x0000);
+      break;
+      case G_ZR: // game_right_Zaxis-
+        Gamepad.ryAxis(0x0000);
+      break;
+      case G_01: // game_button_01
+        Gamepad.release(1);
+      break;
+      case G_02: // game_button_02
+        Gamepad.release(2);
+      break;
+      case G_03: // game_button_03
+        Gamepad.release(3);
+      break;
+      case G_04: // game_button_04
+        Gamepad.release(4);
+      break;
+      case G_05: // game_button_05
+        Gamepad.release(5);
+      break;
+      case G_06: // game_button_06
+        Gamepad.release(6);
+      break;
+      case G_07: // game_button_07
+        Gamepad.release(7);
+      break;
+      case G_08: // game_button_08
+        Gamepad.release(8);
+      break;
+      case G_09: // game_button_09
+        Gamepad.release(9);
+      break;
+      case G_10: // game_button_10
+        Gamepad.release(10);
+      break;
+      case G_11: // game_button_11
+        Gamepad.release(11);
+      break;
+      case G_12: // game_button_12
+        Gamepad.release(12);
+      break;
+      case G_13: // game_button_13
+        Gamepad.release(13);
+      break;
+      case G_14: // game_button_14
+        Gamepad.release(14);
+      break;
+      case G_15: // game_button_15
+        Gamepad.release(15);
+      break;
+      case G_16: // game_button_16
+        Gamepad.release(16);
+      break;
+      case G_17: // game_button_17
+        Gamepad.release(17);
+      break;
+      case G_18: // game_button_18
+        Gamepad.release(18);
+      break;
+      case G_19: // game_button_19
+        Gamepad.release(19);
+      break;
+      case G_20: // game_button_20
+        Gamepad.release(20);
+      break;
+      case G_21: // game_button_21
+        Gamepad.release(21);
+      break;
+      case G_22: // game_button_22
+        Gamepad.release(22);
+      break;
+      case G_23: // game_button_23
+        Gamepad.release(23);
+      break;
+      case G_24: // game_button_24
+        Gamepad.release(24);
+      break;
+    }
+  }
+  Gamepad.write();
 }
 
 /**
