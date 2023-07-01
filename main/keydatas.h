@@ -60,17 +60,17 @@ byte keySets[KEYSET_MAX][KEYS_V][KEYS_H+1] = { // V, H + 1byte(mode-code)
    { '1', '2', '3', 'f',0x00},
    { '0',0xEA, ' ',0xC6,0x00}},// 4
 
-  {{0x00, 'b', 'c', 'd',0x00},
-   { 'e', 'f', 'g', 'h',0x00},
-   { 'i', 'j', 'k', 'l',0x00},
-   { 'm', 'n', 'o', 'p',0x00},
-   { 'q', 'r', 's', 't',0x00}},// 5
+  {{ 'q', 'e', 'r', 'f',0x00},
+   { 'a',0xDA, 'w', 'd',0x00},
+   {0xD8,0xD9, 's',0xD7,0x00},
+   { 'y', 'u', 'i', 'o',0x00},
+   { 'h', 'j', 'k', 'l',0x00}},// 5
 
-  {{0x00, 'b', 'c', 'd',0x00},
-   { 'e', 'f', 'g', 'h',0x00},
-   { 'i', 'j', 'k', 'l',0x00},
-   { 'm', 'n', 'o', 'p',0x00},
-   { 'q', 'r', 's', 't',0x00}},// 6
+  {{ 'q', 'e',0x81,0x80,0x00},
+   { 'a',0xDA, 'w', 'd',0x00},
+   {0xD8,0xD9, 's',0xD7,0x00},
+   { 'y', 'u', 'i', 'o',0x00},
+   { 'h', 'j', 'k', 'l',0x00}},// 6
 
   {{0x00, 'b', 'c', 'd',0x00},
    { 'e', 'f', 'g', 'h',0x00},
@@ -129,12 +129,12 @@ byte keySets[KEYSET_MAX][KEYS_V][KEYS_H+1] = { // V, H + 1byte(mode-code)
 
 char modeString[KEYSET_MAX][17] = { // char*16 + 0x00(null)
   "  keypad mode   ", "   mouse mode   ", "  Rhythm mode\7  ", "clip studio mode", // 0~3
-  "  youtube mode  ", "  mode num 05   ", "  mode num 06   ", "  mode num 07   ", // 4~7
+  "  youtube mode  ", " complex game 1 ", " complex game 2 ", "  mode num 07   ", // 4~7
   "  mode num 08   ", "  mode num 09   ", "  macro mouse!  ", "  Gamepad mode  ", // 8~11
   " Gamepad mode2  ", "  mode num 13   ", "  Surface mode  ", " Consumer mode  "  // 12~15
 }; // end
 
-/* example
+/*
   {{0x00,0x00,0x00,0x00,0x00},
    {0x00,0x00,0x00,0x00,0x00},
    {0x00,0x00,0x00,0x00,0x00},
