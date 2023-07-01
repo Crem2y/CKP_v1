@@ -1,6 +1,6 @@
 // for arduino Leonardo board
 #include <EEPROM.h> // ATmega32U4 has 1024 bytes
-#include <HID-Project.h>
+#include "HID-Project.h"
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
   #include <avr/power.h>
@@ -44,10 +44,7 @@ int lcd_var = 0; // lcd display var
 
 unsigned int timeCount = 0; // timer count
 
-/**
- * @brief Construct a new ISR object
- * timer int (1kHz = 1ms)
- */
+// timer int (1kHz = 1ms)
 ISR(TIMER0_COMPA_vect) {
   timeCount++;
   if (timeCount < repeatSpeed) {
@@ -74,7 +71,7 @@ ISR(TIMER0_COMPA_vect) {
   timeCount = 0;
 }
 
-void setup(void) {
+void setup() {
   byte i;
 
   for(i=0; i<KEYS_H; i++) { // pin set
@@ -90,13 +87,13 @@ void setup(void) {
   //Consumer.begin();
   Mouse.begin();
   SurfaceDial.begin();
-  Gamepad.begin();
 
   lcd.createChar(1, lcd_char_num_lock);
   lcd.createChar(2, lcd_char_cap_lock);
   lcd.createChar(3, lcd_char_scr_lock);
   lcd.createChar(4, lcd_char_locked);
   lcd.createChar(5, lcd_char_unlocked);
+  lcd.createChar(7, lcd_char_rhythm);
   lcd.begin(16,2);
   lcd.print(" Custom keypad  ");
   lcd.setCursor(0, 1);
@@ -140,7 +137,7 @@ void setup(void) {
 }
 
 //////////////////////////////// main loop start ////////////////////////////////
-void loop(void) { 
+void loop() { 
   byte i; // keyH
   byte j; // keyV
 
@@ -228,14 +225,12 @@ void loop(void) {
     counter += 4;
   } // rotery checking end
 
-  Neo_loop(); // neopixel display
+  Neo_keyLight_KB(); // neopixel display
   // neopixel display end
+  delay(1);
 }
 //////////////////////////////// main loop end ////////////////////////////////
-
-/**
- * @brief select keyset by key input
- */
+// select keyset
 void keysetSelect(void) {
   Keyboard.releaseAll();
   Mouse.releaseAll();
@@ -354,13 +349,9 @@ void keysetSelect(void) {
   }
 }
 
-/**
- * @brief change keyset
- * 
- * @param keyset byte, 0 ~ KEYSET_MAX
- */
+// change keyset
 void keysetChange(byte keyset) {
-  repeatSpeed = RS_DEF;
+  repeatSpeed = MS_DEF;
   lcd.begin(16,2);
   lcd.print("M:_    \1_ \2_ \3_ ");
   lcd.setCursor(2, 0);
@@ -371,14 +362,7 @@ void keysetChange(byte keyset) {
 }
 
 /////////////// key function ///////////////
-/**
- * @brief chack and press a key once
- * 
- * @param key byte, if 0, key is pressed
- * @param keyposH byte, 0 ~ KEYS_H
- * @param keyposV byte, 0 ~ KEYS_V
- * @param keyset byte, 0 ~ KEYSET_MAX
- */
+// chack and press a key once
 void keyCheck(byte key, byte keyposH, byte keyposV, byte keyset) {
   if (!digitalRead(key)) { // if pressed
     if (!isKeyPressed[keyposV][keyposH]) { // if first detacted
@@ -391,14 +375,7 @@ void keyCheck(byte key, byte keyposH, byte keyposV, byte keyset) {
   }
 }
 
-/**
- * @brief click a key
- * 
- * @param key byte, if 0, key is pressed
- * @param keyposH byte, 0 ~ KEYS_H
- * @param keyposV byte, 0 ~ KEYS_V
- * @param keyset byte, 0 ~ KEYSET_MAX
- */
+// click a key
 void keyRepeat(byte key, byte keyposH, byte keyposV, byte keyset) {
   if (!digitalRead(key)) { // if pressed
     isKeyPressed[keyposV][keyposH] = true;
@@ -407,14 +384,7 @@ void keyRepeat(byte key, byte keyposH, byte keyposV, byte keyset) {
   }
 }
 
-/**
- * @brief chack and toggle key
- * 
- * @param key byte, if 0, key is pressed
- * @param keyposH byte, 0 ~ KEYS_H
- * @param keyposV byte, 0 ~ KEYS_V
- * @param keyset byte, 0 ~ KEYSET_MAX
- */
+// chack and toggle key
 void keyToggle(byte key, byte keyposH, byte keyposV, byte keyset) {
   bool TK = isToggledKey[keyposV][keyposH]; // previous state
 
@@ -429,14 +399,7 @@ void keyToggle(byte key, byte keyposH, byte keyposV, byte keyset) {
   }
 }
 
-/**
- * @brief toggle & click a key
- * 
- * @param key byte, if 0, key is pressed
- * @param keyposH byte, 0 ~ KEYS_H
- * @param keyposV byte, 0 ~ KEYS_V
- * @param keyset byte, 0 ~ KEYSET_MAX
- */
+// toggle & click a key
 void toggleRepeat(byte key, byte keyposH, byte keyposV, byte keyset) {
   bool TK = isToggledKey[keyposV][keyposH]; // previous state
 
@@ -450,35 +413,21 @@ void toggleRepeat(byte key, byte keyposH, byte keyposV, byte keyset) {
   }
 }
 
-/**
- * @brief check keycode and execute correct function
- * 
- * @param keycode unsigned char, 0~255
- * @param pressed bool, if true, key is pressed
- */
+
 void keyHandle(unsigned char keycode, bool pressed) {
   if (keycode < 0x20) {
     sp_Normal(keycode, pressed);
-  } else if (keycode > 0x87 && keycode < 0xB0) {
-    sp_Gamepad(keycode, pressed);
   } else if (keycode > 0xB3 && keycode < 0xC1) {
     sp_Consumer(keycode, pressed);
   } else if (keycode > 0xEB && keycode < 0xF0) {
     sp_Surface(keycode, pressed);
-  } else if (keycode > 0xFB) {
-    sp_Function(keycode, pressed);
   } else {
     if (pressed) Keyboard.press(keycode);
     else Keyboard.release(keycode);
   }
 }
 
-/**
- * @brief special keycode for mouse, repeat speed, and user function
- * 
- * @param keycode unsigned char, 0x01 ~ 0x1F (31)
- * @param pressed bool, if true, key is pressed
- */
+// special keycode 0x01~0x1F (mouse, repeat speed...)
 void sp_Normal(byte keycode, bool pressed) {
   if (pressed) {
     switch(keycode) {
@@ -597,269 +546,7 @@ void sp_Normal(byte keycode, bool pressed) {
   }
 }
 
-/**
- * @brief special keycode by gamepad
- * 
- * @param keycode unsigned char, 0x88 ~ 0xAF (40)
- * @param pressed bool, if true, key is pressed
- */
-void sp_Gamepad(byte keycode, bool pressed) {
-  if (pressed) {
-    switch(keycode) {
-      case G_LU: // game_left_stick_up
-        Gamepad.yAxis(0x8000);
-      break;
-      case G_LD: // game_left_stick_down
-        Gamepad.yAxis(0x7FFF);
-      break;
-      case G_LL: // game_left_stick_left
-        Gamepad.xAxis(0x8000);
-      break;
-      case G_LR: // game_left_stick_right
-        Gamepad.xAxis(0x7FFF);
-      break;
-      case G_RU: // game_right_stick_up
-        Gamepad.rxAxis(0x8000);
-      break;
-      case G_RD: // game_right_stick_down
-        Gamepad.rxAxis(0x7FFF);
-      break;
-      case G_RL: // game_right_stick_left
-        Gamepad.zAxis(0x80);
-      break;
-      case G_RR: // game_right_stick_right
-        Gamepad.zAxis(0x7F);
-      break;
-      case G_DU: // game_dpad_up
-        Gamepad.dPad2(GAMEPAD_DPAD_UP);
-      break;
-      case G_DD: // game_dpad_down
-        Gamepad.dPad2(GAMEPAD_DPAD_DOWN);
-      break;
-      case G_DL: // game_dpad_left
-        Gamepad.dPad2(GAMEPAD_DPAD_LEFT);
-      break;
-      case G_DR: // game_dpad_right
-        Gamepad.dPad2(GAMEPAD_DPAD_RIGHT);
-      break;
-      case G_ZU: // game_left_Zaxis+
-        Gamepad.rzAxis(0x80);
-      break;
-      case G_ZD: // game_left_Zaxis-
-        Gamepad.rzAxis(0x7F);
-      break;
-      case G_ZL: // game_right_Zaxis+
-        Gamepad.ryAxis(0x8000);
-      break;
-      case G_ZR: // game_right_Zaxis-
-        Gamepad.ryAxis(0x7FFF);
-      break;
-      case G_01: // game_button_01
-        Gamepad.press(1);
-      break;
-      case G_02: // game_button_02
-        Gamepad.press(2);
-      break;
-      case G_03: // game_button_03
-        Gamepad.press(3);
-      break;
-      case G_04: // game_button_04
-        Gamepad.press(4);
-      break;
-      case G_05: // game_button_05
-        Gamepad.press(5);
-      break;
-      case G_06: // game_button_06
-        Gamepad.press(6);
-      break;
-      case G_07: // game_button_07
-        Gamepad.press(7);
-      break;
-      case G_08: // game_button_08
-        Gamepad.press(8);
-      break;
-      case G_09: // game_button_09
-        Gamepad.press(9);
-      break;
-      case G_10: // game_button_10
-        Gamepad.press(10);
-      break;
-      case G_11: // game_button_11
-        Gamepad.press(11);
-      break;
-      case G_12: // game_button_12
-        Gamepad.press(12);
-      break;
-      case G_13: // game_button_13
-        Gamepad.press(13);
-      break;
-      case G_14: // game_button_14
-        Gamepad.press(14);
-      break;
-      case G_15: // game_button_15
-        Gamepad.press(15);
-      break;
-      case G_16: // game_button_16
-        Gamepad.press(16);
-      break;
-      case G_17: // game_button_17
-        Gamepad.press(17);
-      break;
-      case G_18: // game_button_18
-        Gamepad.press(18);
-      break;
-      case G_19: // game_button_19
-        Gamepad.press(19);
-      break;
-      case G_20: // game_button_20
-        Gamepad.press(20);
-      break;
-      case G_21: // game_button_21
-        Gamepad.press(21);
-      break;
-      case G_22: // game_button_22
-        Gamepad.press(22);
-      break;
-      case G_23: // game_button_23
-        Gamepad.press(23);
-      break;
-      case G_24: // game_button_24
-        Gamepad.press(24);
-      break;
-    }
-  } else {
-    switch(keycode) {
-      case G_LU: // game_left_stick_up
-        Gamepad.yAxis(0x0000);
-      break;
-      case G_LD: // game_left_stick_down
-        Gamepad.yAxis(0x0000);
-      break;
-      case G_LL: // game_left_stick_left
-        Gamepad.xAxis(0x0000);
-      break;
-      case G_LR: // game_left_stick_right
-        Gamepad.xAxis(0x0000);
-      break;
-      case G_RU: // game_right_stick_up
-        Gamepad.rxAxis(0x0000);
-      break;
-      case G_RD: // game_right_stick_down
-        Gamepad.rxAxis(0x0000);
-      break;
-      case G_RL: // game_right_stick_left
-        Gamepad.zAxis(0x00);
-      break;
-      case G_RR: // game_right_stick_right
-        Gamepad.zAxis(0x00);
-      break;
-      case G_DU: // game_dpad_up
-        Gamepad.dPad2(GAMEPAD_DPAD_CENTERED);
-      break;
-      case G_DD: // game_dpad_down
-        Gamepad.dPad2(GAMEPAD_DPAD_CENTERED);
-      break;
-      case G_DL: // game_dpad_left
-        Gamepad.dPad2(GAMEPAD_DPAD_CENTERED);     
-      break;
-      case G_DR: // game_dpad_right
-        Gamepad.dPad2(GAMEPAD_DPAD_CENTERED);
-      break;
-      case G_ZU: // game_left_Zaxis+
-        Gamepad.rzAxis(0x00);
-      break;
-      case G_ZD: // game_left_Zaxis-
-        Gamepad.rzAxis(0x00);
-      break;
-      case G_ZL: // game_right_Zaxis+
-        Gamepad.ryAxis(0x0000);
-      break;
-      case G_ZR: // game_right_Zaxis-
-        Gamepad.ryAxis(0x0000);
-      break;
-      case G_01: // game_button_01
-        Gamepad.release(1);
-      break;
-      case G_02: // game_button_02
-        Gamepad.release(2);
-      break;
-      case G_03: // game_button_03
-        Gamepad.release(3);
-      break;
-      case G_04: // game_button_04
-        Gamepad.release(4);
-      break;
-      case G_05: // game_button_05
-        Gamepad.release(5);
-      break;
-      case G_06: // game_button_06
-        Gamepad.release(6);
-      break;
-      case G_07: // game_button_07
-        Gamepad.release(7);
-      break;
-      case G_08: // game_button_08
-        Gamepad.release(8);
-      break;
-      case G_09: // game_button_09
-        Gamepad.release(9);
-      break;
-      case G_10: // game_button_10
-        Gamepad.release(10);
-      break;
-      case G_11: // game_button_11
-        Gamepad.release(11);
-      break;
-      case G_12: // game_button_12
-        Gamepad.release(12);
-      break;
-      case G_13: // game_button_13
-        Gamepad.release(13);
-      break;
-      case G_14: // game_button_14
-        Gamepad.release(14);
-      break;
-      case G_15: // game_button_15
-        Gamepad.release(15);
-      break;
-      case G_16: // game_button_16
-        Gamepad.release(16);
-      break;
-      case G_17: // game_button_17
-        Gamepad.release(17);
-      break;
-      case G_18: // game_button_18
-        Gamepad.release(18);
-      break;
-      case G_19: // game_button_19
-        Gamepad.release(19);
-      break;
-      case G_20: // game_button_20
-        Gamepad.release(20);
-      break;
-      case G_21: // game_button_21
-        Gamepad.release(21);
-      break;
-      case G_22: // game_button_22
-        Gamepad.release(22);
-      break;
-      case G_23: // game_button_23
-        Gamepad.release(23);
-      break;
-      case G_24: // game_button_24
-        Gamepad.release(24);
-      break;
-    }
-  }
-  Gamepad.write();
-}
-
-/**
- * @brief special keycode for consumer key
- * 
- * @param keycode unsigned char, 0xB4 ~ 0xC0 (13)
- * @param pressed bool, if true, key is pressed
- */
+// consumer key 0xB4~0xC0 (13)
 void sp_Consumer(byte keycode, bool pressed) {
   if (pressed) {
     switch(keycode) {
@@ -910,7 +597,7 @@ void sp_Consumer(byte keycode, bool pressed) {
         Consumer.release(CONSUMER_BROWSER_FORWARD);
       break;
       /*
-      case C_FI: // con_find
+      case C_FI: // con_find ??
         Consumer.press(HID_CONSUMER_AC_FIND);
         Consumer.release(HID_CONSUMER_AC_FIND);
       break;
@@ -928,12 +615,7 @@ void sp_Consumer(byte keycode, bool pressed) {
   }
 }
 
-/**
- * @brief special keycode for surface dial
- * 
- * @param keycode unsigned char, 0xEC ~ 0xEF (4)
- * @param pressed bool, if true, key is pressed
- */
+// surface dial 0xEC~0xEF (4)
 void sp_Surface(byte keycode, bool pressed) {
   if (pressed) {
     switch(keycode) {
@@ -946,9 +628,6 @@ void sp_Surface(byte keycode, bool pressed) {
       case S_CC: // surface_counter_clockwise
         SurfaceDial.rotate(-10);
       break;
-      case L_CN: // LED_change
-        Neo_modeChange();
-      break;
     }
   } else {
     if(keycode == S_B) {
@@ -957,50 +636,16 @@ void sp_Surface(byte keycode, bool pressed) {
   }
 }
 
-/**
- * @brief special keycode for special function
- * 
- * @param keycode unsigned char, 0xFC ~ 0xFF (4)
- * @param pressed bool, if true, key is pressed
- */
-void sp_Function(byte keycode, bool pressed) {
-  if (pressed) {
-    switch(keycode) {
-      case F_S1: // special_function_01
-        sp_func_01();
-      break;
-      case F_S2: // special_function_02
-        sp_func_02();
-      break;
-      case F_S3: // special_function_03
-        sp_func_03();
-      break;
-      case F_S4: // special_function_04
-        sp_func_04();
-      break;
-    }
-  }
-}
-
 /////////////// lcd function ///////////////
-/**
- * @brief set string to print (about 1s)
- * 
- * @param msg String
- * @param var int
- */
+// set string to print (about 1s)
 void LCD_printSet(String msg, int var) {
   lcd_varname = msg;
   lcd_var = var;
   lcd_time = 1;
 }
 
-/**
- * @brief print string at (0,1) + var
- * 
- * @param msg String
- * @param var int
- */
+// print string at (0,1) + var
+// ex) [String123]
 void LCD_varPrint(String msg, int var) {
   lcd.setCursor(0, 1);
   lcd.print(LCD_BLANK);
@@ -1009,11 +654,7 @@ void LCD_varPrint(String msg, int var) {
   lcd.print(var);
 }
 
-/**
- * @brief print string at (0,1)
- * 
- * @param msg String
- */
+// print string at (0,1)
 void LCD_print(String msg) {
   lcd.setCursor(0, 1);
   lcd.print(msg);
@@ -1024,70 +665,22 @@ byte Neo_bright[20] = {0,};
 byte Neo_count = 0;
 byte Neo_count2 = 0;
 byte Neo_ranset[20] = {1, 8, 12, 15, 14, 10, 9, 17, 0, 7, 13, 5, 2, 19, 11, 4, 6, 18, 3, 16};
-byte Neo_mode = 4;
-
-/**
- * @brief run every loop
- */
-void Neo_loop(void) { 
-  switch (Neo_mode) {
-    case 0:
-      Neo_keyLight_OFF();
-    break;
-    case 1:
-      Neo_keyLight_Fixed();
-    break;
-    case 2:
-      Neo_keyLight_Rainbow();
-    break;
-    case 3:
-      Neo_keyLight_Random();
-    break;
-    case 4:
-      Neo_keyLight_Pressed();
-    break;
-    case 5:
-      Neo_keyLight_PressedAll();
-    break;
-    default:
-      Neo_keyLight_OFF();
-    break;
-  }
-  pixels.show();
-}
-
-/**
- * @brief change mode
- */
-void Neo_modeChange(void) { 
-  Neo_mode++;
-  if (Neo_mode == 6) {
-    Neo_mode = 0;
-  }
-}
-
-/**
- * @brief turn off leds all
- */
+// 전부 끄기
 void Neo_keyLight_OFF(void) { 
   for(byte i=0; i<20; i++) {
     pixels.setPixelColor(i, pixels.Color(0,0,0));
   }
+  pixels.show();
 }
-
-/**
- * @brief turn on leds by fixed color
- */
-void Neo_keyLight_Fixed(void) { 
+// 밝기 고정
+void Neo_keyLight_NN(void) { 
   for(byte i=0; i<20; i++) {
     pixels.setPixelColor(i, pixels.Color(P_BMAX,P_BMAX,P_BMAX));
   }
+  pixels.show();
 }
-
-/**
- * @brief turn on leds by rainbow
- */
-void Neo_keyLight_Rainbow(void) { 
+// 무지개! 무지개!
+void Neo_keyLight_NR(void) { 
   for(byte i=0; i<4; i++) {
     pixels.setPixelColor(i,    pixels.Color(P_BMAX,0,0));
     pixels.setPixelColor(i+4,  pixels.Color(P_BMAX,P_BMAX,0));
@@ -1095,12 +688,10 @@ void Neo_keyLight_Rainbow(void) {
     pixels.setPixelColor(i+12, pixels.Color(0,P_BMAX,P_BMAX));
     pixels.setPixelColor(i+16, pixels.Color(0,0,P_BMAX));
   }
+  pixels.show();
 }
-
-/**
- * @brief random light
- */
-void Neo_keyLight_Random(void) { 
+// 랜덤으로 밝게
+void Neo_keyLight_RN(void) { 
   byte pnum = Neo_ranset[Neo_count2];
   Neo_bright[pnum] = P_BMAX;
 
@@ -1121,12 +712,10 @@ void Neo_keyLight_Random(void) {
     Neo_count2++;
   }
   Neo_count++;
+  pixels.show();
 }
-
-/**
- * @brief turn on led pressed key only
- */
-void Neo_keyLight_Pressed(void) {
+// 누른 키만 밝게
+void Neo_keyLight_KB(void) {
   byte pnum = 0;
   for(byte i=0; i<5; i++) {
     for(byte j=0; j<4; j++) {
@@ -1149,12 +738,10 @@ void Neo_keyLight_Pressed(void) {
     Neo_count = 0;
   }
   Neo_count++;
+  pixels.show();
 }
-
-/**
- * @brief turn on led if key is pressed
- */
-void Neo_keyLight_PressedAll(void) {
+ // 누르면 전부 밝게
+void Neo_keyLight_KA(void) {
   Neo_bright[0] = 0;
   for(byte i=0; i<5; i++) {
     for(byte j=0; j<4; j++) {
@@ -1167,15 +754,11 @@ void Neo_keyLight_PressedAll(void) {
   for(byte i=0; i<20; i++) {
     pixels.setPixelColor(i, pixels.Color(b,b,b));
   }
+  pixels.show();
 }
 
 /////////////// serial function ///////////////
-/**
- * @brief check if String is command
- * 
- * @param str String
- */
-void commandCheck(String str) {
+void commandCheck(String str) { // check command
   Serial.println(str);
   if(str == "SAVE") {
     LCD_print("   SAVING...    ");
@@ -1195,10 +778,7 @@ void commandCheck(String str) {
   LCD_print(modeString[kset]);
 }
 
-/**
- * @brief save 'keySets' data to EEPROM
- */
-void eepromSave(void) {
+void eepromSave(void) { // save data to eeprom
   unsigned int address = 0;
   byte data = 0;
 
@@ -1224,10 +804,7 @@ void eepromSave(void) {
   Serial.println(String(address)+" of 1024 bytes used");
 }
 
-/**
- * @brief load 'keySets' data from EEPROM
- */
-void eepromLoad(void) {
+void eepromLoad(void) { // load data from eeprom
   unsigned int address = 0;
   
   for(byte i=0; i<KEYSET_MAX; i++) { // load key set
@@ -1249,10 +826,7 @@ void eepromLoad(void) {
   Serial.println(String(address)+" bytes Load complete!");
 }
 
-/**
- * @brief print 'keySets' data at serial
- */
-void printData(void) {
+void printData(void) { // print 'keySets' data
   Serial.println("Paste this list at 'keySets'");
 
   for(byte i=0; i<KEYSET_MAX; i++) {
@@ -1297,10 +871,7 @@ void printData(void) {
   }
 }
 
-/**
- * @brief get data by serial and save to 'keysets'
- */
-void setKey(void) {
+void setKey(void) { // set 'keysets'
   String str = "";
   Serial.println("Enter key set number (00~"+String(KEYSET_MAX-1)+")");
 
@@ -1394,10 +965,8 @@ void setKey(void) {
 }
 
 /////////////// other function ///////////////
-/**
- * @brief check key input a~t (but NO keyboard output)
- */
-unsigned char keyInput(void) {
+// check key input a~t (but NO keyboard output)
+unsigned char keyInput() {
   byte i;
   byte j;
   for(i=0; i<KEYS_H; i++) {
@@ -1414,11 +983,8 @@ unsigned char keyInput(void) {
   } // key checking end
   return 0;
 }
-
-/**
- * @brief key test mode
- */
-void keyTestMode(void) {
+// 키 테스트 모드
+void keyTestMode() {
   lcd.home();
   lcd.print(" key test mode  ");
   lcd.setCursor(0, 1);
@@ -1488,10 +1054,7 @@ void keyTestMode(void) {
   }
 }
 
-/**
- * @brief if rotery pin changed
- */
-void Rotery_changed(void) {
+void Rotery_changed() {
   int A = digitalRead(rotpinA); 
   int B = digitalRead(rotpinB);
 
@@ -1516,47 +1079,24 @@ void Rotery_changed(void) {
 }
 
 /////////////// user function ///////////////
-
-/**
- * @brief user function 01
- */
 void func_01(void) {
 }
 
-/**
- * @brief user function 02
- */
 void func_02(void) {
 }
 
-/**
- * @brief user function 03
- */
 void func_03(void) {
 }
 
-/**
- * @brief user function 04
- */
 void func_04(void) {
 }
 
-/**
- * @brief user function 05
- */
 void func_05(void) {
 }
 
-/**
- * @brief user function 06
- */
 void func_06(void) {
 }
 
-/**
- * 
- * @brief user function 07
- */
 void func_07(void) {
   Keyboard.press(0x80);
   Keyboard.press('s');
@@ -1564,33 +1104,18 @@ void func_07(void) {
   Keyboard.release('s');
 }
 
-/**
- * @brief user function 08
- */
 void func_08(void) {
-}
-
-/**
- * @brief special function 01
- */
-void sp_func_01(void) {
   Keyboard.print("00");
 }
 
-/**
- * @brief special function 02
- */
-void sp_func_02(void) {
+void func_09(void) {
 }
 
-/**
- * @brief special function 03
- */
-void sp_func_03(void) {
+void func_10(void) {
 }
 
-/**
- * @brief special function 04
- */
-void sp_func_04(void) {
+void func_11(void) {
+}
+
+void func_12(void) {
 }
